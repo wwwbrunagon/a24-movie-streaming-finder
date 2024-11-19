@@ -1,1 +1,8 @@
 node_modules/
+dist/
+
+# Environment Variables
+.env
+
+# Secrets file
+secrets.json
