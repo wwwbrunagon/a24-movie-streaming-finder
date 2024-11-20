@@ -1,24 +1,32 @@
-import { fetchFromTMDB } from '../utils/api';
-import { Movie, StreamingInfo } from '../interfaces/movie';
+import { fetchFromTMDB } from '../api/fetchFromTMDB';
+import { Movie, ProviderDetails, StreamingInfo } from '../interfaces/movie';
+import { mapTMDBResults, TMDBResponse } from '../utils/typeUtils';
 
 export const getStudioA24Movies = async (): Promise<Movie[]> => {
-  const data = await fetchFromTMDB<{ results: any[] }>('discover/movie', {
-    with_companies: '18441', // TMDB ID for Studio A24
+  const data: TMDBResponse<Movie> = await fetchFromTMDB('discover/movie', {
+    with_companies: '18441',
   });
 
-  return data.results.map((movie) => ({
+  return mapTMDBResults(data, (movie: Movie) => ({
     id: movie.id,
     title: movie.title,
-    releaseDate: movie.release_date,
-    posterPath: movie.poster_path,
+    releaseDate: movie.releaseDate,
+    posterPath: movie.posterPath,
   }));
 };
 
-export const getStreamingInfo = async (movieId: number): Promise<StreamingInfo[]> => {
-  const data = await fetchFromTMDB<{ results: Record<string, any>[] }>(`movie/${movieId}/watch/providers`);
+export const getStreamingInfo = async (
+  movieId: number
+): Promise<StreamingInfo[]> => {
+  const data: TMDBResponse<Record<string, ProviderDetails>> =
+    await fetchFromTMDB(`movie/${movieId}/watch/providers`);
 
   return Object.entries(data.results).map(([providerName, details]) => ({
     providerName,
-    link: details.link,
+
+    link:
+      typeof details.link === 'string'
+        ? details.link
+        : details.link?.link || '',
   }));
 };
