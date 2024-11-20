@@ -7,13 +7,3 @@ A simple Node.js and TypeScript-based application that allows users to search fo
 ## API Used
 - [TMDB API](https://developers.themoviedb.org/3) for movie data and metadata.
 
----
-
-## Requirements
-- Node.js v16 or later
-- npm or yarn
-- TMDB API key
----
-
-![UML](./assets/uml.png)
-
