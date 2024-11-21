@@ -1,14 +1,28 @@
 import axios from 'axios';
 import { TMDB_API_KEY, TMDB_BASE_URL } from '../config';
 
-export const fetchFromTMDB = async <T>(
-  path: string,
-  params?: Record<string, string>
-): Promise<T> => {
-  const url = `${TMDB_BASE_URL}/${path}?api_key=${TMDB_API_KEY}&${new URLSearchParams(
-    params || {}
-  ).toString()}`;
+export async function fetchFromTMDB<T>(
+  endpoint: string,
+  params?: { [key: string]: string }
+): Promise<T> {
+  try {
+    // Ensure the endpoint is properly formed with a slash
+    const url = `${TMDB_BASE_URL}${
+      endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    }`;
+    console.log(`Fetching from TMDB: ${url}`);
 
-  const response = await axios.get<T>(url);
-  return response.data;
-};
+    const response = await axios.get<T>(url, {
+      params: {
+        api_key: TMDB_API_KEY,
+        ...params,
+      },
+    });
+
+    console.log('TMDB response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data from TMDB:', error);
+    throw new Error('Error fetching data from TMDB');
+  }
+}

@@ -2,7 +2,7 @@ export interface Movie {
   id: number;
   title: string;
   releaseDate: string;
-  posterPath: string;
+  posterPath?: string;
   movie?: string;
   release_date?: string;
   poster_path?: string;
@@ -17,4 +17,8 @@ export interface ProviderDetails {
 export interface StreamingInfo {
   link: string;
   providerName: string;
+}
+
+export interface SearchMoviesQuery {
+  name: string;
 }

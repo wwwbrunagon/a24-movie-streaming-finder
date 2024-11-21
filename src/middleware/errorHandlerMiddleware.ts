@@ -2,25 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../errors/CustomError';
 
 export const errorHandlerMiddleware = (
-  err: Error,
+  err: CustomError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  let statusCode = 500;
-  let message = 'Internal Server Error';
+  console.error(`Error occurred during processing ${req.method} ${req.url}`);
+  console.error('Error details:', err);
 
-  if (err instanceof CustomError) {
-    statusCode = err.statusCode;
-    message = err.message;
-  }
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
 
-  console.error(`${statusCode} - ${req.method} ${req.url}: ${message}`);
-
-  res.status(statusCode).json({
-    error: {
-      message,
-      statusCode,
-    },
-  });
+  res.status(statusCode).json({ error: { message, statusCode } });
 };
