@@ -2,8 +2,6 @@
 
 TypeScript and Node.js project that fetches and displays movie information from Studios, using the TMDB API to locate which streaming services offer these movies.
 
-## API Used
-
 ## Features Implemented
 
 1. API Integration:
