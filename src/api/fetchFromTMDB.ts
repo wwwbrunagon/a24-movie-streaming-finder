@@ -6,7 +6,6 @@ export async function fetchFromTMDB<T>(
   params?: { [key: string]: string }
 ): Promise<T> {
   try {
-    // Ensure the endpoint is properly formed with a slash
     const url = `${TMDB_BASE_URL}${
       endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     }`;

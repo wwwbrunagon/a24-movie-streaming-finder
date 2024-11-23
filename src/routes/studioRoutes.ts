@@ -1,30 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
-
 import Logger from '../utils/logger';
-import { CustomError } from '../errors/CustomError';
 import { searchStudioAndFetchMovies } from '../services/movieService';
-import { fetchAndSaveStudioList } from '../services/studioServices';
 import { ServerError } from '../errors/ServerError';
 
 const router = Router();
 
-// Endpoint to fetch and save studio list
-router.get(
-  '/studios',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await fetchAndSaveStudioList();
-      res
-        .status(200)
-        .json({ message: 'Studios fetched and saved successfully.' });
-    } catch (error) {
-      Logger.error('Error in /api/studios:', error);
-      next(new CustomError('Failed to fetch and save studio list.', 500));
-    }
-  }
-);
-
-// Endpoint to search for a studio and fetch its movies
 router.get(
   '/studios/movies',
   async (req: Request, res: Response, next: NextFunction) => {
