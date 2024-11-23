@@ -1,5 +1,5 @@
 import { Company } from '../interfaces/company';
-import companiesDataRaw from '../../data/production_company_ids_11_22_2024.json';
+import companiesDataRaw from '../../backend/data/production_company_ids_11_22_2024.json';
 
 const companiesData: Company[] = (companiesDataRaw as { data: Company[] }).data;
 
