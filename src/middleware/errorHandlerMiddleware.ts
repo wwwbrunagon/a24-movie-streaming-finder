@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { CustomError } from '../errors/CustomError';
+import { ErrorLog } from '../errors/errorLogs';
+import { logger } from '../utils/logger';
 
 export const errorHandlerMiddleware = (
-  err: CustomError,
+  err: Error | ErrorLog,
   req: Request,
   res: Response,
   _next: NextFunction
 ) => {
-  console.error(`Error occurred during processing ${req.method} ${req.url}`);
-  console.error('Error details:', err);
+  logger.error(`Error occurred during processing ${req.method} ${req.url}`);
+  logger.error(`Error details: ${err.message}`);
 
-  const statusCode = err.statusCode || 500;
+  const statusCode = err instanceof ErrorLog ? err.status : 500;
   const message = err.message || 'Internal Server Error';
 
   res.status(statusCode).json({ error: { message, statusCode } });

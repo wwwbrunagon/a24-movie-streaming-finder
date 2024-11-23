@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { TMDB_API_KEY, TMDB_BASE_URL } from '../config';
+import { ErrorLog } from '../errors/errorLogs';
 
 export async function fetchFromTMDB<T>(
   endpoint: string,
   params?: { [key: string]: string }
 ): Promise<T> {
   try {
-    // Ensure the endpoint is properly formed with a slash
     const url = `${TMDB_BASE_URL}${
       endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     }`;
@@ -23,6 +23,11 @@ export async function fetchFromTMDB<T>(
     return response.data;
   } catch (error) {
     console.error('Error fetching data from TMDB:', error);
-    throw new Error('Error fetching data from TMDB');
+    throw new ErrorLog(
+      'ERR_FETCH_FROM_TMDB_FAILED',
+      'Error fetching data from TMDB',
+      null,
+      500
+    );
   }
 }
