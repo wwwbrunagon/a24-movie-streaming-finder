@@ -1,5 +1,5 @@
 {
-  "name": "a24-movie-streaming-finder",
+  "name": "movie-streaming-finder",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
