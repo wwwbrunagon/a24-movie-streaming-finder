@@ -1,42 +1,30 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import Logger from '../utils/logger';
-import { searchStudioAndFetchMovies } from '../services/movieService';
-import { ServerError } from '../errors/ServerError';
+import express, { Request, Response } from 'express';
+import fs from 'fs/promises';
+import path from 'path';
+import { ErrorLog } from '../errors/errorLogs';
+const router = express.Router();
 
-const router = Router();
-
-router.get(
-  '/studios/movies',
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { name } = req.query as { name?: string };
-
-    if (!name) {
-      Logger.warn('Studio name missing in request query.');
-      res
-        .status(400)
-        .json({ error: 'Studio name is required as a query parameter.' });
-      return;
-    }
-
-    try {
-      Logger.info(`Searching for movies by studio: ${name}`);
-      const movies = await searchStudioAndFetchMovies(name);
-
-      if (movies.length === 0) {
-        Logger.info(`No movies found for the studio: ${name}`);
-        res
-          .status(200)
-          .json({ message: 'No movies found for the given studio.' });
-        return;
-      }
-
-      Logger.info(`Movies fetched for the studio ${name}:`, movies);
-      res.status(200).json(movies);
-    } catch (error) {
-      Logger.error('Error occurred in /api/studios/movies handler:', error);
-      next(new ServerError('Internal Server Error', 500));
-    }
-  }
+const dataPath = path.resolve(
+  __dirname,
+  '../../data/production_company_ids_11_22_2024.json'
 );
+
+router.get('/studios', async (req: Request, res: Response) => {
+  try {
+    console.log(`Loading studios from file: ${dataPath}`);
+    const data = await fs.readFile(dataPath, 'utf-8');
+    const studios = JSON.parse(data);
+    res.json(studios);
+  } catch (err) {
+    console.error('Error loading production company data:', err);
+    const error = new ErrorLog(
+      'ERR_LOAD_STUDIOS_FAILED',
+      'Failed to load production company data.',
+      null,
+      500
+    );
+    res.status(error.status).json({ message: error.message });
+  }
+});
 
 export default router;

@@ -1,14 +1,10 @@
 import path from 'path';
 import fs from 'fs/promises';
-
 import { fetchFromTMDB } from '../api/fetchFromTMDB';
 import { Movie } from '../interfaces/movie';
-import { CustomError } from '../errors/CustomError';
 import { Studio } from '../interfaces/studio';
+import { ErrorLog } from '../errors/errorLogs';
 
-/**
- * Loads studio list, searches for a specific studio, and fetches its movies.
- */
 export const searchStudioAndFetchMovies = async (
   searchName: string
 ): Promise<Movie[]> => {
@@ -24,13 +20,17 @@ export const searchStudioAndFetchMovies = async (
       s.name.toLowerCase().includes(searchName.toLowerCase())
     );
     if (!studio) {
-      throw new CustomError(`Studio "${searchName}" not found.`, 404);
+      throw new ErrorLog(
+        'ERR_STUDIO_NOT_FOUND',
+        `Studio "${searchName}" not found.`,
+        null,
+        404
+      );
     }
 
     console.log(`Studio found: ${studio.name} (ID: ${studio.id})`);
     console.log('Fetching movies for the studio from TMDB...');
 
-    // Fetch movies for the found studio
     const data = await fetchFromTMDB<{ results: Movie[] }>('discover/movie', {
       with_companies: studio.id.toString(),
     });
@@ -44,9 +44,14 @@ export const searchStudioAndFetchMovies = async (
     return data.results;
   } catch (err) {
     console.error('Error in searchStudioAndFetchMovies:', err);
-    if (err instanceof CustomError) {
+    if (err instanceof ErrorLog) {
       throw err;
     }
-    throw new CustomError('Failed to fetch movies for the studio.', 500);
+    throw new ErrorLog(
+      'ERR_FETCH_MOVIES_FAILED',
+      'Failed to fetch movies for the studio.',
+      null,
+      500
+    );
   }
 };

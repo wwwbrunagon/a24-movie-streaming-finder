@@ -1,8 +1,8 @@
 import { Movie } from '../interfaces/movie';
-import { CustomError } from '../errors/CustomError';
 import fs from 'fs/promises';
 import path from 'path';
 import { fetchFromTMDB } from '../api/fetchFromTMDB';
+import { ErrorLog } from '../errors/errorLogs';
 
 export const searchStudioAndFetchMovies = async (
   searchName: string
@@ -16,20 +16,35 @@ export const searchStudioAndFetchMovies = async (
     );
 
     if (!studio) {
-      throw new CustomError(`Studio "${searchName}" not found`, 404);
+      throw new ErrorLog(
+        'ERR_STUDIO_NOT_FOUND',
+        `Studio "${searchName}" not found.`,
+        null,
+        404
+      );
     }
 
-    const movies: Movie[] = await fetchFromTMDB<Movie[]>('discover/movie', {
+    const data = await fetchFromTMDB<{ results: Movie[] }>('discover/movie', {
       with_companies: studio.id.toString(),
     });
 
-    return movies;
+    if (!data || !data.results || data.results.length === 0) {
+      console.log('No movies found for the given studio.');
+      return [];
+    }
+
+    return data.results;
   } catch (error) {
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorLog) {
       throw error;
     } else {
       console.error('Unexpected error:', error);
-      throw new CustomError('Failed to fetch movies for the studio.', 500);
+      throw new ErrorLog(
+        'ERR_FETCH_MOVIES_FAILED',
+        'Failed to fetch movies for the studio.',
+        null,
+        500
+      );
     }
   }
 };
