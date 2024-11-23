@@ -1,5 +1,3 @@
-// src/utils/logger.ts
-
 export enum LogLevel {
   INFO = 'INFO',
   WARN = 'WARN',
