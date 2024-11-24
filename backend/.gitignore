@@ -3,4 +3,4 @@ dist/
 data/production_company_ids_11_22_2024.json
 .env
 .prettierrc
-
+.DS_Store
