@@ -1,45 +1,49 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '../utils/logger';
 
-// Load data once when service is started
 const dataPath = path.resolve(
-  __dirname,
-  '../../data/production_company_ids_11_22_2024.json'
+	__dirname,
+	'../../data/production_company_ids_11_22_2024.json'
 );
-let productionData: any;
 
-fs.readFile(dataPath, 'utf-8', (err, data) => {
-  if (!err) {
-    productionData = JSON.parse(data);
-  }
-});
+export const getMoviesByProductionCompany = async (companyId: number) => {
+	try {
+		logger.info(`Data path: ${dataPath}`);
+		const data = await fs.readFile(dataPath, 'utf-8');
+		logger.info(`Successfully read data from file: ${dataPath}`);
 
-export const findMoviesByProductionCompany = (
-  companyId: number,
-  data?: unknown
-): unknown[] => {
-  // Initial load data if not supplied in recursion
-  if (!data) {
-    data = productionData;
-  }
+		let parsedData;
+		try {
+			parsedData = JSON.parse(data);
+			logger.info(
+				`Parsed data successfully. Type of parsed data: ${typeof parsedData}`
+			);
+		} catch (parseError) {
+			logger.error(`Error parsing JSON data: ${parseError}`);
+			throw new Error('Failed to parse production company data');
+		}
 
-  let result: any[] = [];
+		if (!parsedData.data || !Array.isArray(parsedData.data)) {
+			logger.error('Parsed data is not in the expected format');
+			throw new Error('Parsed data is not in the expected format');
+		}
 
-  const search = (data: any): void => {
-    if (Array.isArray(data)) {
-      data.forEach((item) => search(item));
-    } else if (typeof data === 'object') {
-      if (data.id === companyId) {
-        result.push(data);
-      }
-      Object.values(data).forEach((value) => {
-        if (typeof value === 'object') {
-          search(value);
-        }
-      });
-    }
-  };
+		const movies = parsedData.data;
+		logger.info(
+			`Parsed movies data successfully. Total records: ${movies.length}`
+		);
 
-  search(data);
-  return result;
+		const filteredMovies = movies.filter(
+			(movie: any) => Number(movie.id) === Number(companyId)
+		);
+
+		logger.info(
+			`Movies found for company ID ${companyId}: ${filteredMovies.length}`
+		);
+		return filteredMovies;
+	} catch (error) {
+		logger.error(`Error reading production company data: ${error}`);
+		throw new Error('Failed to read production company data');
+	}
 };

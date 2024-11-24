@@ -20,7 +20,7 @@ const ProductionCompanySearch: React.FC<ProductionCompanySearchProps> = ({
 
 	const handleSearchByName = () => {
 		if (searchInput.trim().length > 0) {
-			onSearchByName(searchInput);
+			onSearchByName(searchInput.trim());
 		}
 	};
 
