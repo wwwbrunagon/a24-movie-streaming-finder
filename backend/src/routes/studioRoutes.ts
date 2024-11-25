@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
-import { ErrorLog } from '../errors/errorLogs';
+import { ErrorLog } from '../errors/errorLog';
 import { getCompanyById, getCompanyByName } from '../services/companyService';
-import { getMoviesByProductionCompany } from '../services/studioServices';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
@@ -49,25 +48,5 @@ router.get('/company/name/:name', async (req: Request, res: Response) => {
 		res.status(error.status).json({ message: error.message });
 	}
 });
-
-router.get(
-	'/movies/production-company/:companyId',
-	async (req: Request, res: Response) => {
-		try {
-			const companyId = parseInt(req.params.companyId, 10);
-			logger.info(
-				`Received request for movies from production company ID: ${companyId}`
-			);
-			const movies = await getMoviesByProductionCompany(companyId);
-			logger.info(
-				`Movies found: ${movies.length} for company ID: ${companyId}`
-			);
-			res.json(movies);
-		} catch (error) {
-			logger.error(`Error fetching movies: ${error}`);
-			res.status(500).json({ message: 'Failed to fetch movies' });
-		}
-	}
-);
 
 export default router;
