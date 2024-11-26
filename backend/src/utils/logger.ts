@@ -25,14 +25,15 @@ export const logger = {
 			console.warn(logMessage);
 		}
 	},
-	error: (error: ErrorLog) => {
+	error: (error: ErrorLog, context?: object) => {
 		const logMessage = `[${getTimeStamp()}] ERROR: [${error.errorCode}] ${
 			error.message
 		}`;
-		if (error.details) {
+		if (context || error.details) {
 			console.error(logMessage, {
 				status: error.status,
 				details: error.details,
+				context: context || {},
 			});
 		} else {
 			console.error(logMessage, { status: error.status });

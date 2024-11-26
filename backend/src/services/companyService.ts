@@ -1,18 +1,17 @@
-import { Company } from '../interfaces/company';
-import companiesDataRaw from '../../data/production_company_ids_11_22_2024.json';
+import { CompanyMoviesResponse } from '../interfaces/company';
+import { errorLibrary } from '../errors/errorLog';
+import { Movie } from '../interfaces/movie';
+import { logger } from '../utils/logger';
+import { fetchFromTMDB } from '../api/fetchFromTMDB';
 
-const companiesData: Company[] = (companiesDataRaw as { data: Company[] }).data;
-
-export const getCompanyById = async (id: number): Promise<Company | null> => {
-	const company = companiesData.find((company) => company.id === id);
-	return company || null;
-};
-
-export const getCompanyByName = async (
-	name: string
-): Promise<Company | null> => {
-	const company = companiesData.find(
-		(company) => company.name.toLowerCase() === name.toLowerCase()
-	);
-	return company || null;
-};
+export async function getMoviesByCompany(companyId: number): Promise<Movie[]> {
+	try {
+		const endpoint = `/company/${companyId}/movies`;
+		const data = await fetchFromTMDB<CompanyMoviesResponse>(endpoint);
+		return data.results;
+	} catch (error) {
+		const logError = errorLibrary.INTERNAL_SERVER_ERROR;
+		logger.error(logError, { companyId });
+		throw logError;
+	}
+}
